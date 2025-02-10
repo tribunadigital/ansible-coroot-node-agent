@@ -28,7 +28,7 @@
       ansible.builtin.file:
         path: "{{ coroot_node_agent_file_service }}.env"
         mode: '0600'
-	state: touch
+        state: touch
 
     - name: Create systemd service file
       ansible.builtin.template:

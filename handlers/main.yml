@@ -1,0 +1,8 @@
+---
+- name: Restart coroot-node-agent
+  ansible.builtin.systemd:
+    name: coroot-node-agent
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true

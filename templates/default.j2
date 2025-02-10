@@ -1,0 +1,4 @@
+# {{ ansible_managed }}
+{% for key, value in coroot_node_agent_env_vars.items() %}
+{{ key }}='{{ value }}'
+{% endfor %}

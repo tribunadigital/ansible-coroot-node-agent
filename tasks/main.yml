@@ -1,0 +1,8 @@
+---
+- name: Import install.yml
+  ansible.builtin.import_tasks: install.yml
+  when: not coroot_node_agent_uninstall | default(false) | bool
+
+- name: Import uninstall.yml
+  ansible.builtin.import_tasks: uninstall.yml
+  when: coroot_node_agent_uninstall | default(false) | bool

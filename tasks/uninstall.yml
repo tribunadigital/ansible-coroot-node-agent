@@ -1,0 +1,29 @@
+---
+- name: Uninstall coroot node agent
+  become: true
+  block:
+    - name: Stop coroot-node-agent
+      ansible.builtin.systemd:
+        name: coroot-node-agent
+        state: stopped
+        enabled: false
+
+    - name: Remove coroot node agent bin
+      ansible.builtin.file:
+        dest: "{{ coroot_node_agent_bin_dest }}"
+        state: absent
+
+    - name: Remove systemd service file
+      ansible.builtin.file:
+        dest: "{{ coroot_node_agent_file_service }}"
+        state: absent
+
+    - name: Remove default env file
+      ansible.builtin.file:
+        dest: "{{ coroot_node_agent_file_env }}"
+        state: absent
+
+    - name: Remove systemd service env file
+      ansible.builtin.file:
+        dest: "{{ coroot_node_agent_file_service }}.env"
+        state: absent

@@ -1,0 +1,50 @@
+---
+- name: Install and configure coroot node agent
+  become: true
+  block:
+    - name: Check if coroot-node-agent command exists and get its version # noqa: no-changed-when
+      ansible.builtin.command: coroot-node-agent --version
+      register: version_out
+      ignore_errors: true
+
+    - name: Parse installed version if available
+      ansible.builtin.set_fact:
+        installed_version: "{{ version_out.stdout | regex_search('Version:\\s*(.*)', '\\1') | trim }}"
+      when: version_out.rc == 0
+
+    - name: Download coroot bin file if version mismatch or version < 1.23.4
+      ansible.builtin.get_url:
+        url: "{{ coroot_node_agent_download_url }}"
+        dest: "{{ coroot_node_agent_bin_dest }}"
+        mode: '0755'
+        checksum: "sha256:{{ coroot_node_agent_sha256sum }}"
+      notify: Restart coroot-node-agent
+      when: >
+        (coroot_node_agent_version is version('1.23.4', '<')) or
+        (coroot_node_agent_version is version('1.23.4', '>=') and
+         (installed_version is not defined or installed_version != coroot_node_agent_version))
+
+    - name: Create systemd service env file
+      ansible.builtin.file:
+        path: "{{ coroot_node_agent_file_service }}.env"
+        mode: '0600'
+
+    - name: Create systemd service file
+      ansible.builtin.template:
+        src: systemd_service.j2
+        dest: "{{ coroot_node_agent_file_service }}"
+        mode: '0755'
+      notify: Restart coroot-node-agent
+
+    - name: Create default env file
+      ansible.builtin.template:
+        src: default.j2
+        dest: "{{ coroot_node_agent_file_env }}"
+        mode: '0644'
+      notify: Restart coroot-node-agent
+
+    - name: Start coroot-node-agent
+      ansible.builtin.systemd:
+        name: coroot-node-agent
+        state: started
+        enabled: true

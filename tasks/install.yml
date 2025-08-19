@@ -26,10 +26,10 @@
          (installed_version is not defined or installed_version != coroot_node_agent_version))
 
     - name: Create systemd service env file
-      ansible.builtin.file:
-        path: "{{ coroot_node_agent_file_service }}.env"
+      ansible.builtin.copy:
+        content: '# ansible managed empty file'
+        dest: "{{ coroot_node_agent_file_service }}.env"
         mode: '0600'
-        state: file
 
     - name: Create systemd service file
       ansible.builtin.template:
